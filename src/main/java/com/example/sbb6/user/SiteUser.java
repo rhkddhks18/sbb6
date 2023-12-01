@@ -13,7 +13,7 @@ public class SiteUser {
     private Long id;
 
     @Column(unique = true)
-    private String emailId;
+    private String username;
 
     @Column(unique = true)
     private String nickname;

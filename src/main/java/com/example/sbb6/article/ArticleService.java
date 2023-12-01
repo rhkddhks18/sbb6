@@ -1,7 +1,10 @@
 package com.example.sbb6.article;
 
 import com.example.sbb6.DataNotFoundException;
+import com.example.sbb6.user.SiteUser;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,8 +16,23 @@ import java.util.Optional;
 public class ArticleService {
     private final ArticleRepository articleRepository;
 
-     List<Article> getList() {
-        return this.articleRepository.findAll();
+    private Specification<Article> search(String kw) {
+        return new Specification<>() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public Predicate toPredicate(Root<Article> a, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                query.distinct(true);  // 중복을 제거
+                Join<Article, SiteUser> u = a.join("author", JoinType.LEFT);
+                return cb.or(cb.like(a.get("title"), "%" + kw + "%"),
+                        cb.like(a.get("content"), "%" + kw + "%"),
+                        cb.like(u.get("username"), "%" + kw + "%"));
+            }
+        };
+    }
+
+    List<Article> getList(String kw) {
+        Specification<Article> spec = search(kw);
+        return this.articleRepository.findAll(spec);
     }
 
     public Article getArticle(Integer id){
@@ -26,11 +44,23 @@ public class ArticleService {
         }
     }
 
-    public void create(String title, String content) {
+    public void create(String title, String content, SiteUser user) {
          Article article = new Article();
          article.setTitle(title);
          article.setContent(content);
          article.setCreateDate(LocalDateTime.now());
+         article.setAuthor(user);
          this.articleRepository.save(article);
+    }
+
+    public void modify(Article article, String title, String content) {
+       article.setTitle(title);
+       article.setContent(content);
+       article.setModifyDate(LocalDateTime.now());
+       this.articleRepository.save(article);
+    }
+
+    public void delete(Article article) {
+        this.articleRepository.delete(article);
     }
 }

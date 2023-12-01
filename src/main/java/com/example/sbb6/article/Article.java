@@ -1,6 +1,7 @@
 package com.example.sbb6.article;
 
 
+import com.example.sbb6.user.SiteUser;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,4 +23,9 @@ public class Article {
     private String content;
 
     private LocalDateTime createDate;
+
+    @ManyToOne
+    private SiteUser author;
+
+    private LocalDateTime modifyDate;
 }

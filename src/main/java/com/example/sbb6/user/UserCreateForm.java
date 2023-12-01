@@ -13,7 +13,7 @@ import org.checkerframework.checker.units.qual.min;
 public class UserCreateForm {
     @Email
     @NotEmpty(message = "아이디는 필수 항목")
-    private String emailId;
+    private String username;
     @Size(min = 3, max = 25)
     @NotEmpty(message = "닉네임은 필수 항목")
     private String nickname;
